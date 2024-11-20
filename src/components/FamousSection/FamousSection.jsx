@@ -32,14 +32,37 @@ function FamousSection() {
     });
   }
 
-  const addPerson = (evt) => {
-    evt.preventDefault();
+  const addPerson = (event) => {
+    event.preventDefault();
     console.log(`The person is ${famousPersonName} and they're famous for ${famousPersonRole}`);
     
     // TODO: create POST request to add this new person to the database
 
     // HINT: the server is expecting a person object 
     //       with a `name` and a `role` property
+
+    // Create HTTP POST request with Axios to send a new person to server, then db
+    axios({
+      method: "POST",
+      url: "/api/people",
+      data: { name: famousPersonName, role: famousPersonRole }
+    })
+      .then((response) => {
+        console.log(`/api/people POST request sent successfully…`);
+
+        // Get all people (including the new one) from db and update the local state
+        // ?? "Will have side effect of reloading the component" 
+        // ?? ^^^ Not sure what this means - because of the `useEffect` hook?
+        fetchPeople();
+
+        // Set input states to "" to clear them
+        setPersonName("");
+        setPersonRole("");
+    })
+      .catch((error) => {
+        console.log("erroror with POST /api/people:", error);
+
+    });
   
   }
 
@@ -47,9 +70,17 @@ function FamousSection() {
       <section className="new-person-section">
         <form onSubmit={addPerson}>
           <label htmlFor="name-input">Name:</label>
-          <input id="name-input" onChange={e => setPersonName(e.target.value)} />
+          <input 
+            id="name-input" 
+            onChange={(event) => setPersonName(event.target.value)}
+            value={famousPersonName} 
+          />
           <label htmlFor="role-input">Famous for:</label>
-          <input id="role-input" onChange={e => setPersonRole(e.target.value)} />
+          <input 
+            id="role-input" 
+            onChange={(event) => setPersonRole(event.target.value)}
+            value={famousPersonRole} 
+          />
           <button type="submit">Done</button>
         </form>
         <p>
